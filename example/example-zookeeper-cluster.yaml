@@ -1,0 +1,11 @@
+apiVersion: "zookeeper.database.apache.com/v1alpha1"
+kind: "ZookeeperCluster"
+metadata:
+  name: "example-zookeeper-cluster"
+  ## Adding this annotation make this cluster managed by clusterwide operators
+  ## namespaced operators ignore it
+  # annotations:
+  #   zookeeper.database.apache.com/scope: clusterwide
+spec:
+  size: 5
+  version: "3.5.3-beta"
