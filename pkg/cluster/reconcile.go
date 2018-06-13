@@ -99,7 +99,7 @@ func (c *Cluster) reconcileMembers(running zookeeperutil.MemberSet) error {
 	if unknownMembers.Size() > 0 {
 		c.logger.Infof("removing unexpected pods: %v", unknownMembers)
 		for _, m := range unknownMembers {
-			if err := c.removePod(m.Name); err != nil {
+			if err := c.removePod(m.Name, true); err != nil {
 				return err
 			}
 		}
@@ -197,7 +197,8 @@ func (c *Cluster) removeMember(toRemove *zookeeperutil.Member, isScalingEvent bo
 	if err != nil {
 		c.logger.Errorf("failed to create remove member event: %v", err)
 	}
-	if err := c.removePod(toRemove.Name); err != nil {
+	// We can wait if it's a scaling event, if this is a recovery then force delete
+	if err := c.removePod(toRemove.Name, isScalingEvent); err != nil {
 		return err
 	}
 	// TODO: @MDF: Add PV support

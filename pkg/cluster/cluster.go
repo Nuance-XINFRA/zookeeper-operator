@@ -373,9 +373,13 @@ func (c *Cluster) createPod(existingCluster []string, m *zookeeperutil.Member, s
 	return err
 }
 
-func (c *Cluster) removePod(name string) error {
+func (c *Cluster) removePod(name string, wait bool) error {
 	ns := c.cluster.Namespace
-	opts := metav1.NewDeleteOptions(podTerminationGracePeriod)
+	gracePeriod := podTerminationGracePeriod
+	if !wait {
+		gracePeriod = int64(0)
+	}
+	opts := metav1.NewDeleteOptions(gracePeriod)
 	err := c.config.KubeCli.Core().Pods(ns).Delete(name, opts)
 	if err != nil {
 		if !k8sutil.IsKubernetesResourceNotFoundError(err) {
