@@ -102,6 +102,9 @@ type ClusterSpec struct {
 
 	// zookeeper JVM policy
 	JVM *JVMPolicy `json:"jvm,omitempty"`
+
+	RequestCPU string `json:"cpu_request"`
+	RequestMEM string `json:"mem_request"`
 }
 
 // PodPolicy defines the policy to create pod for the zookeeper container.
