@@ -29,6 +29,7 @@ import (
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -61,6 +62,9 @@ const (
 	AnnotationScope = "zookeeper.database.apache.com/scope"
 	//AnnotationClusterWide annotation value for cluster wide clusters.
 	AnnotationClusterWide = "clusterwide"
+
+	DefaultCPU = ".1"
+	DefaultMEM = "512m"
 )
 
 const TolerateUnreadyEndpointsAnnotation = "service.alpha.kubernetes.io/tolerate-unready-endpoints"
@@ -247,6 +251,22 @@ func NewZookeeperPod(m *zookeeperutil.Member, existingCluster []string, clusterN
 	} else {
 		zooServers[len(existingCluster)] = fmt.Sprintf("server.%d=%s:2888:3888:observer;%s:2181", m.ID(), m.Addr(), m.Addr())
 	}
+
+	cpus, err := resource.ParseQuantity(cs.RequestCPU)
+	if err != nil {
+		cpus, _ = resource.ParseQuantity(DefaultCPU)
+	}
+
+	memory, err := resource.ParseQuantity(cs.RequestMEM)
+	if err != nil {
+		memory,_ = resource.ParseQuantity(DefaultMEM)
+	}
+
+	container.Resources= v1.ResourceRequirements{
+		Requests: v1.ResourceList{
+			v1.ResourceCPU:    cpus,
+			v1.ResourceMemory: memory,
+	}}
 
 	container.Env = append(container.Env, v1.EnvVar{
 		Name:  "ZOO_MY_ID",

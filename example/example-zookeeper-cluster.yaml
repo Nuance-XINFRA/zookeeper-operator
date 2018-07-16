@@ -9,3 +9,5 @@ metadata:
 spec:
   size: 5
   version: "3.5.3-beta"
+  cpu_request: 500m
+  mem_request: 256M
